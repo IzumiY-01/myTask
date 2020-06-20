@@ -15,5 +15,14 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('task/create', 'TaskController@add');
-Route::post('task/create', 'TaskController@create');
+Route::group(['middleware' => ['auth','can:user_higher']], function () {
+    Route::get('task/create', 'TaskController@add');
+    Route::post('task/create', 'TaskController@create');
+    Route::get('task', 'TaskController@index');
+    Route::get('task/edit','TaskController@edit');
+    Route::post('task/edit','TaskController@update');
+    
+});
+
+Auth::routes();
+Route::get('/home', 'HomeController@index')->name('home');

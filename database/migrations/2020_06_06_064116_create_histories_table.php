@@ -13,7 +13,8 @@ class CreateHistoriesTable extends Migration
      */
     public function up()
     {
-        Schema::create('histories', function (Blueprint $table) {
+        Schema::create('histories', function (Blueprint $table) 
+        {
             $table->bigIncrements('id');
             $table->integer('task_id');
             $table->string('object_month');

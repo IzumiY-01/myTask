@@ -7,14 +7,27 @@ use App\Http\Controllers\Controller;
 use App\Task;
 use App\History;
 use Carbon\Carbon;
-
+use App\Libs\CommonFunction;
+use Illuminate\Support\Facades\DB;
 
 class TaskController extends Controller
-{
+{   
+    /**
+     *作業開始/作業期限のスケジュールを決めるパータン
+     *  1:WORKDAY  月初からx営業日パターン：
+     *  2:FIXED_PRE 固定x日（土日祝前倒し）：
+     *  3:FIXED_POST 固定x日（土日祝後倒し）：
+     *  4:LASTDAY 月末
+     **/
+    const WORKDAY = 1;
+    const FIXED_PRE = 2;
+    const FIXED_POST = 3;
+    const LASTDAY = 4;
+    
     //task新規作成画面表示
     public function add()
     {
-        return view('create');
+        return view('task.create');
     }
 
     //task新規作成
@@ -35,67 +48,69 @@ class TaskController extends Controller
         $tasks->fill($form);
         $tasks->save();
         
-        /*
-        histories tableへ保存
-        */
+        
+         //histories table へ保存 
+         // task_id,object_mont,start_date,due_date
+         
         $history = new History;
         $history->task_id = $tasks->id;
         $history->object_month = $tasks->object_month;
-        //$history->status 
-        //startd_date取得
+        
         $start_pattern = $tasks->start_pattern;
         $start_schedule = $tasks->start_schedule;
-        //due
+        
         $due_pattern = $tasks->due_pattern;
         $due_schedule = $tasks->due_schedule;
         
         $object_month = $history->object_month;
         //指定月の土日祝日を取得（google calender api使用予定）　
-            
         
-        if($start_pattern == 1)
+        
+            
+        //作業開始日の算出
+        if($start_pattern == self::WORKDAY)
         {   
             //月初●営業日
-            
             $period = $this->businessDate($object_month);
             // $periodからkey:●-1のvalueを取得
             $history->start_date = current(array_slice($period, $start_schedule-1, 1, true)) ; 
             
-        }else if ($start_pattern ==2)
+        }else if ($start_pattern ==self::FIXED_PRE)
         {
             //固定日（土日祝前倒し）
-            $date = $object_month."-".$start_schedule;
-            
+            $date = date('Y-m-d', strtotime($object_month."-".$start_schedule));
             $history->start_date = $this->calcSubBusinessDate($date);
         
-        }else if($start_pattern ==3)
+        }else if($start_pattern ==self::FIXED_POST)
         {
-            $date = $object_month."-".$start_schedule;
-            
+            //固定日（土日祝後倒し）
+            $date = date('Y-m-d', strtotime($object_month."-".$start_schedule));
             $history->start_date = $this->calcAddBusinessDate($date);
         }
         
         //作業期限の算出
-        if($due_pattern == 1)
+        if($due_pattern == self::WORKDAY)
         {
             //月初●営業日
             $period = $this->businessDate($object_month);
-            $history->start_date = current(array_slice($period, $due_schedule-1, 1, true)) ; 
+            $history->due_date = current(array_slice($period, $due_schedule-1, 1, true)) ; 
             
-        }else if($due_pattern == 2)
+        }
+        else if($due_pattern == self::FIXED_PRE)
         {
             //固定日（土日祝日前倒し）
-            $date = $object_month."-".$due_schedule ;
+            $date = date('Y-m-d', strtotime($object_month."-".$due_schedule));
             $history->due_date = $this->calcSubBusinessDate($date);
             
         }
-        else if($due_pattern == 3)
+        else if($due_pattern == self::FIXED_POST)
         {
             //固定日（土日祝日後倒し）
-            $date = $object_month."-".$due_schedule ;
+            $date = date('Y-m-d', strtotime($object_month."-".$due_schedule));
             $history->due_date = $this->calcAddBusinessDate($date);
             
-        }else if($due_pattern == 4)
+        }
+        else if($due_pattern == self::LASTDAY)
         {
             //作業月末（土日前倒し）
             $date = date('Y-m-d', strtotime('last day of ' . $object_month));
@@ -145,33 +160,6 @@ class TaskController extends Controller
     
     
     /**
-     * 土日祝関数
-     * 
-     * @param 日付
-     * @return 土日祝の場合：true、そうでない場合：false
-     */
-    private function isHoliday(String $date)
-    {
-        $weekdate = date('w', strtotime($date));
-        if ($weekdate != 0 || $weekdate != 6){
-            // TODO 祝日を確認する関数
-           
-            $holidays = array(
-                '2020-06' => array('sat1'=>'2020-06-06','sun1'=>'2020-06-07','sat2'=>'2020-06-13','sun2'=>'2020-06-14','sat3'=>'2020-06-20','sun3'=>'2020-06-21','sat4'=>'2020-06-27','sun4'=>'2020-06-28'),
-                '2020-07' => array('sat1'=>'2020-07-04','sun1'=>'2020-07-05','sat2'=>'2020-07-11','sun2'=>'2020-07-12','sat3'=>'2020-07-18','sun3'=>'2020-07-19','ho1'=>'2020-07-23','ho2'=>'2020-07-24','sat4'=>'2020-07-25','sun4'=>'2020-07-26'),
-                '2020-08' => array('sat1'=>'2020-08-01','sun1'=>'2020-08-02','sat2'=>'2020-08-08','sun2'=>'2020-08-09','ho1'=>'2020-08-10','sat3'=>'2020-08-15','sun3'=>'2020-08-16','sat4'=>'2020-08-22','sun4'=>'2020-08-23','sat5'=>'2020-08-29','sun5'=>'2020-08-30'),
-            );
-            
-            $objectHoliday = $holidays[date('Y-m', strtotime($date))];
-            if (array_search($date,$objectHoliday,true)) {
-                return true;
-            }
-            return false;
-        }
-        return true;
-    }
-    
-    /**
      * 営業日関数（schedule_pattern=2土日祝前倒し）
      * 引数の日付が営業日の場合、営業日を返却する。
      * もし、引数の日付が営業日でない場合(=土日祝のとき）、前営業日を返却する。
@@ -180,11 +168,12 @@ class TaskController extends Controller
      * 付
      * @return 日付（営業日 or 前営業日）
      */
-    private function calcSubBusinessDate(String $date)
+    private function calcSubBusinessDate($date)
     {
-        if ($this->isHoliday($date)){
+        if (CommonFunction::isHoliday($date)){
             $carbon = new Carbon($date);
-            return $this->calcSubBusinessDate($carbon->subDay(1)->toDateString()) ;
+            return $this->calcSubBusinessDate($carbon->subDay(1)) ;
+            //->toDateString()
         }
         return $date;
     }
@@ -197,13 +186,96 @@ class TaskController extends Controller
      * @param 日付
      * @return 日付（営業日 or 前営業日）
      */
-    private function calcAddBusinessDate(String $date)
+    private function calcAddBusinessDate($date)
     {
-        if ($this->isHoliday($date)){
+        if (CommonFunction::isHoliday($date)){
             $carbon = new Carbon($date);
-            return $this->calcAddBusinessDate($carbon->addDay(1)->toDateString());
+            return $this->calcAddBusinessDate($carbon->addDay(1));
         }
         return $date;
     }
     
+    /**
+     * タスク一覧表示
+     * 
+     **/
+    
+    public function index(Request $request)
+    {
+        $cond_month = $request->cond_month;
+        
+        if(isset($cond_month)){
+        //検索されたら検索結果を取得する
+        $tasks = DB::table('tasks')
+                    ->select('histories.*','tasks.title','tasks.category','tasks.name_work')
+                    ->join('histories','tasks.id','=','histories.task_id')
+                    ->where('histories.object_month',$cond_month)
+                    ->get();
+        
+        }else{
+        // 検索されなかったら全て取得
+            $tasks = DB::table('tasks')
+                    ->join('histories','tasks.id','=','histories.task_id')
+                    ->select('histories.*','tasks.title','tasks.category','tasks.name_work')
+                    ->get();
+         }
+        return view('task.index',compact('tasks'));
+    }
+    
+    /**
+     * 編集画面
+     * 
+     **/
+    public function edit(Request $request)
+    {   
+        $task_id = $request->task_id;
+        $task_form = DB::table('tasks')
+                    ->select('histories.*','tasks.title','tasks.category','tasks.name_work','tasks.free')
+                    ->join('histories','tasks.id','=','histories.task_id')
+                    ->where('histories.task_id',$task_id)
+                    ->first();
+        
+        if (empty($task_form)){
+            abort(404);    
+        }
+        
+        return view('task.edit',compact('task_form'));
+    }
+    
+    /**
+     *更新 
+     * 
+     * tasks:name_work,free
+     * histories:status,request_date,delivery_date,check_date,name_check,dept_date
+     * 
+     **/
+    public function update(Request $request)
+    {   
+        //該当のタスクをTaskモデルから取得
+        $task = Task::find($request->task_id);
+        
+        //フォームから送信されてきた作業担当者を取得
+        //フォームから送信されてきた備考欄を取得
+        $task->name_work = $request->name_work;
+        $task->free = $request->free;
+        //tasksテーブルへ保存
+        $task->save();
+        
+        //該当のタスクをhistoryモデルから取得
+        
+        $history = History::where('task_id',$request->task_id)->first();
+        
+        $history->status = $request->status;
+        $history->request_date = $request->request_date;
+        $history->delivery_date =$request->delivery_date;
+        $history->check_date = $request->check_date;
+        $history->name_check = $request->name_check;
+        $history->dept_date = $request->dept_date;
+        
+        $history->save();
+        
+        return redirect('task');
+    }
+    
+   
 }

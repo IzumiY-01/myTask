@@ -13,7 +13,7 @@ class Task extends Model
         'category' => 'required',
         'name_work' =>'required',
         'dept_check' =>'required',
-        
+        'free'=>'required',
         );
     
     //historyモデルに関連付け
