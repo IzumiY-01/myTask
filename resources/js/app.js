@@ -5,6 +5,7 @@
  */
 
 require('./bootstrap');
+require('./create_task.js');
 
 window.Vue = require('vue');
 

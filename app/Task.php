@@ -23,5 +23,10 @@ class Task extends Model
 
     }
     
+     const CATEGORY = [
+        1 => [ 'label' => '定例' ],
+        2 => [ 'label' => 'イレギュラー' ],
+        3 => [ 'label' => 'トラブル' ],
+    ];
     
 }

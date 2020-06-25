@@ -16,5 +16,13 @@ class History extends Model
         3 => [ 'label' => '承認依頼中' ],
         4 => [ 'label' => '完了' ],
     ];
+    
+    protected $dates = [
+        'due_date',
+        'request_date',
+        'delivery_date',
+        'check_date',
+        'dept_date'
+    ];
 
 }

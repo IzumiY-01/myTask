@@ -42,6 +42,57 @@ class TaskController extends Controller
         $tasks = new Task;
         $form = $request->all();
         
+        //作業開始パターンとスケジュール取得　formへ追加・削除
+        $start_pattern = $request->start_pattern;
+            if($start_pattern == self::WORKDAY)
+            {
+                 $start_schedule = $request->start_schedule1;
+                 $form['start_schedule'] = $start_schedule;
+                 unset($form['start_schedule1']);
+                 unset($form['start_schedule2']);
+                 unset($form['start_schedule3']);
+            }else if ($start_pattern ==self::FIXED_PRE)
+            {
+                 $start_schedule = $request->start_schedule2;
+                 $form['start_schedule'] = $start_schedule;
+                 unset($form['start_schedule1']);
+                 unset($form['start_schedule2']);
+                 unset($form['start_schedule3']);
+            }else if ($start_pattern ==self::FIXED_POST)
+            {
+                 $start_schedule = $request->start_schedule3;
+                 $form['start_schedule'] = $start_schedule;
+                 unset($form['start_schedule1']);
+                 unset($form['start_schedule2']);
+                 unset($form['start_schedule3']);
+            }
+        
+        //作業期限パターンとスケジュール取得　formへ追加・削除
+        $due_pattern = $request->due_pattern;
+            if($due_pattern == self::WORKDAY)
+            {
+                 $due_schedule = $request->due_schedule1;
+                 $form['due_schedule'] = $due_schedule;
+                 unset($form['due_schedule1']);
+                 unset($form['due_schedule2']);
+                 unset($form['due_schedule3']);
+            }else if ($due_pattern ==self::FIXED_PRE)
+            {
+                 $due_schedule = $request->due_schedule2;
+                 $form['due_schedule'] = $due_schedule;
+                 unset($form['due_schedule1']);
+                 unset($form['due_schedule2']);
+                 unset($form['due_schedule3']);
+            }else if ($due_pattern ==self::FIXED_POST)
+            {
+                 $due_schedule = $request->due_schedule3;
+                 $form['due_schedule'] = $due_schedule;
+                 unset($form['due_schedule1']);
+                 unset($form['due_schedule2']);
+                 unset($form['due_schedule3']);
+            }
+        
+        
         // フォームから送信されてきた_tokenを削除する
         unset($form['_token']);
         
@@ -57,8 +108,7 @@ class TaskController extends Controller
         $history->object_month = $tasks->object_month;
         
         $start_pattern = $tasks->start_pattern;
-        $start_schedule = $tasks->start_schedule;
-        
+        $start_schedule = $tasks->start_schedule;        
         $due_pattern = $tasks->due_pattern;
         $due_schedule = $tasks->due_schedule;
         
@@ -79,6 +129,7 @@ class TaskController extends Controller
         {
             //固定日（土日祝前倒し）
             $date = date('Y-m-d', strtotime($object_month."-".$start_schedule));
+            
             $history->start_date = $this->calcSubBusinessDate($date);
         
         }else if($start_pattern ==self::FIXED_POST)
@@ -100,6 +151,7 @@ class TaskController extends Controller
         {
             //固定日（土日祝日前倒し）
             $date = date('Y-m-d', strtotime($object_month."-".$due_schedule));
+            
             $history->due_date = $this->calcSubBusinessDate($date);
             
         }

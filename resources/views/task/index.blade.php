@@ -13,7 +13,7 @@
         <h1>タスク一覧</h1>
     </div>
         <br>
-        <div class="col-md-10">
+        <div class="col-md-12">
              <form action="{{ action('TaskController@index') }}" method="get">
                     <div class="form-group row">
                         <label class="col-md-2">対象月</label>
@@ -29,7 +29,7 @@
             
         </div>
         <div class="row">
-            <div class="list-tasks col-md-10 mx-auto">
+            <div class="list-tasks col-md-12 mx-auto">
                 <div class="row">
                     <table class="table table-bordered table-hover">
                         <thead>
@@ -54,7 +54,7 @@
                                 <tr>
                                     <th>{{ $task->task_id }}</th>
                                     <th>{{ $task->title }}</th>
-                                    <th>{{ $task->category }}</th>
+                                    <th>{{ \App\Task::CATEGORY[$task->category]['label'] }}</th>
                                     <th>{{ $task->name_work }}</th>
                                     <th>{{ $task->due_date }}</th>
                                     <th>{{ $task->start_date }}</th>

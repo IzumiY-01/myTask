@@ -49683,6 +49683,8 @@ module.exports = function(module) {
  */
 __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
 
+__webpack_require__(/*! ./create_task.js */ "./resources/js/create_task.js");
+
 window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.js");
 /**
  * The following block of code may be used to automatically register your
@@ -49818,6 +49820,51 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ExampleComponent_vue_vue_type_template_id_299e239e___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
+
+/***/ }),
+
+/***/ "./resources/js/create_task.js":
+/*!*************************************!*\
+  !*** ./resources/js/create_task.js ***!
+  \*************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+__webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
+
+$(function () {
+  console.log("Hello Javascript!!"); //
+
+  var nodelist = document.getElementsByName("due_pattern");
+  console.log(nodelist);
+  $('[name="due_pattern"]:radio').change(function () {
+    if ($('[id=due_pattern01]').prop('checked')) {
+      $('.text').fadeOut();
+      $('.text01').fadeIn();
+    } else if ($('[id=due_pattern02]').prop('checked')) {
+      $('.text').fadeOut();
+      $('.text02').fadeIn();
+    } else if ($('[id=due_pattern03]').prop('checked')) {
+      $('.text').fadeOut();
+      $('.text03').fadeIn();
+    } else if ($('[id=due_pattern04]').prop('checked')) {
+      $('.text').fadeOut();
+      $('.text04').fadeIn();
+    }
+  });
+  $('[name="start_pattern"]:radio').change(function () {
+    if ($('[id=start_pattern01]').prop('checked')) {
+      $('.text00').fadeOut();
+      $('.text05').fadeIn();
+    } else if ($('[id=start_pattern02]').prop('checked')) {
+      $('.text00').fadeOut();
+      $('.text06').fadeIn();
+    } else if ($('[id=start_pattern03]').prop('checked')) {
+      $('.text00').fadeOut();
+      $('.text07').fadeIn();
+    }
+  });
+});
 
 /***/ }),
 
