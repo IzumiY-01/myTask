@@ -21,6 +21,7 @@ Route::group(['middleware' => ['auth','can:user_higher']], function () {
     Route::get('task', 'TaskController@index');
     Route::get('task/edit','TaskController@edit');
     Route::post('task/edit','TaskController@update');
+    Route::get('task/select','TaskController@select');
     
 });
 

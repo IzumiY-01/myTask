@@ -14,18 +14,62 @@
     </div>
         <br>
         <div class="col-md-12">
-             <form action="{{ action('TaskController@index') }}" method="get">
-                    <div class="form-group row">
-                        <label class="col-md-2">対象月</label>
-                        <div class="col-md-3">
-                            <input type="month" class="form-control" name="cond_month" value="{{'$cond_month'}}">
-                        </div>
-                        <div class="col-md-2">
-                            {{ csrf_field() }}
+            <form action="{{ action('TaskController@index') }}" method="get">
+                    <div class="form-group">
+                        <div class="row">
+                             <div class="col-md-2">
+                                {{ csrf_field() }}
                             <input type="submit" class="btn btn-primary" value="検索">
+                            
+                            </div>
+                            <label class="col-md-2">対象月</label>
+                            <div class="col-md-3">
+                            <input type="month" class="form-control" name="cond_month" value="{{$cond_month}}">
+                            </div>
                         </div>
+                        <br>
+                        <a class="btn btn-link" data-toggle="collapse" href="#select1">
+                         詳細設定
+                        </a> 
+                            <div class="collapse" id="select1">
+                                <div class="row">
+                                    <label class="col-md-3">作業担当者</label>
+                                    <div class="col-md-3">
+                                    <input type="text" class="form-control" name="cond_name" value="{{$cond_name}}">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <label class="col-md-3">作業期限</label>
+                                    <div class="col-md-3">
+                                    <input type="date" class="form-control" name="cond_due" value="{{$cond_due}}">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <label class="col-md-3">作業開始</label>
+                                    <div class="col-md-3">
+                                    <input type="date" class="form-control" name="cond_start" value="{{$cond_start}}">
+                                    </div>
+                                </div>    
+                                <div class="row">
+                                    <label class="col-md-3">ステータス</label>
+                                    <div class="col-md-6">
+                                        <select name="cond_status" id="status" class="form-group">
+                                            <option value=" ">未選択</option>
+                                            <option value="1" @if($cond_status=='未着手') selected @endif>未着手</option>
+                                            <option value="2" @if($cond_status=='確認依頼中') selected @endif>確認依頼中</option>
+                                            <option value="3" @if($cond_status=='承認依頼中') selected @endif>承認依頼中</option>
+                                            <option value="4" @if($cond_status=='完了') selected @endif>完了</option>
+                                            <!--@foreach(\App\History::STATUS as $key => $val)-->
+                                            <!--<option value="{{ $key }}">-->
+                                            <!--        {{ $val['label'] }}-->
+                                            <!--</option>-->
+                                            <!--@endforeach-->
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                     </div>
-                </form>
+            </form>
             
         </div>
         <div class="row">
@@ -76,6 +120,6 @@
                 </div>            
             </div>
         </div>
-    </div>
+    
 </div>
 @endsection

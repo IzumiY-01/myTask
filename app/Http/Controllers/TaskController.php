@@ -253,25 +253,53 @@ class TaskController extends Controller
      **/
     
     public function index(Request $request)
-    {
-        $cond_month = $request->cond_month;
+    {   
         
-        if(isset($cond_month)){
-        //検索されたら検索結果を取得する
-        $tasks = DB::table('tasks')
-                    ->select('histories.*','tasks.title','tasks.category','tasks.name_work')
-                    ->join('histories','tasks.id','=','histories.task_id')
-                    ->where('histories.object_month',$cond_month)
-                    ->get();
+        //検索時に入力した項目を取得
+        $cond_month = $request->input('cond_month');
+        $cond_name = $request->input('cond_name');
+        $cond_status = $request->input('cond_status');
+        $cond_due = $request->input('cond_due');
+        $cond_start = $request->input('cond_start');
         
-        }else{
-        // 検索されなかったら全て取得
-            $tasks = DB::table('tasks')
-                    ->join('histories','tasks.id','=','histories.task_id')
-                    ->select('histories.*','tasks.title','tasks.category','tasks.name_work')
-                    ->get();
-         }
-        return view('task.index',compact('tasks'));
+        //検索クエリ作成
+        $query = Task::query();
+        //dd($request->cond_due);
+        
+        //結合
+        $query->join('histories', function ($query) use ($request) {
+        $query->on('tasks.id','=','histories.task_id');
+        });
+        
+        //条件
+        if(!empty($cond_month)){
+        $query->where('histories.object_month',$cond_month);
+        }
+        
+        if(!empty($cond_name)){
+        $query->where('tasks.name_work','like','%'.$cond_name.'%');
+        }
+        
+        
+        if(!empty($cond_due)){
+        
+        $query->where('histories.due_date',$cond_due);
+        }
+        
+        if(!empty($cond_start)){
+        
+        $query->where('histories.start_date',$cond_start);
+        }
+       
+        if(!empty($cond_status)){
+        $query->where('histories.status',$cond_status);
+        }
+       
+        
+        $tasks = $query->paginate(10);
+        
+        
+        return view('task.index',compact(['tasks','cond_month','cond_name','cond_due','cond_start','cond_status']));
     }
     
     /**
@@ -329,5 +357,9 @@ class TaskController extends Controller
         return redirect('task');
     }
     
+    public function select()
+    {
+        return view('task.select');
+    }
    
 }
