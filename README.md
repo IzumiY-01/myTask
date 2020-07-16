@@ -1,14 +1,17 @@
 
 ## 社内向けタスク管理ツール
 社内向けタスク管理ツールは、バックオフィスのお仕事向けに作成したタスク管理ツールです。
-- 月次、週次、日次の仕事を登録
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
+
+- 月次、週次、日次の仕事を登録
+- 指定した対象月の全タスクを一覧表
+- タスクの進捗確認
+-　ユーザ権限（作業者・確認者・承認者）によって進捗を更新
+-
+
+- Database agnostic [schema migrations](https://laravel.com/docs/migrations)
+- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
+- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
 ## Learning Laravel
